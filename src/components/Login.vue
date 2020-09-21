@@ -67,10 +67,12 @@
                     class="form-control"
                     id="exampleInputPassword1"
                     placeholder="Password"
+                    v-model="password"
+                    @keyup.enter="login"
                   />
                 </div>
                 <div class="form-group">
-                  <button class="btn btn-primary">Login</button>
+                  <button class="btn btn-primary" @click="login">Login</button>
                 </div>
               </div>
               <div
@@ -105,6 +107,7 @@
                     class="form-control"
                     placeholder="Password"
                     v-model="password"
+                    @keyup.enter="register"
                   />
                 </div>
 
@@ -130,10 +133,19 @@ export default {
     return {
       name: null,
       email: null,
-      password: null
+      password: null,
     };
   },
   methods: {
+    async login() {
+      try {
+        await fb.auth().signInWithEmailAndPassword(this.email, this.password);
+        window.$("#login").modal("hide");
+        this.$router.replace("/admin");
+      } catch (error) {
+        console.log("You can not register", error);
+      }
+    },
     async register() {
       try {
         await fb
@@ -144,8 +156,8 @@ export default {
       } catch (error) {
         console.log("You can not register", error);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
