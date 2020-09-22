@@ -12,11 +12,7 @@
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-body">
-            <ul
-              class="nav nav-fill nav-pills mb-3"
-              id="pills-tab"
-              role="tablist"
-            >
+            <ul class="nav nav-fill nav-pills mb-3" id="pills-tab" role="tablist">
               <li class="nav-item">
                 <a
                   class="nav-link active"
@@ -26,8 +22,7 @@
                   role="tab"
                   aria-controls="pills-login"
                   aria-selected="true"
-                  >Login</a
-                >
+                >Login</a>
               </li>
               <li class="nav-item">
                 <a
@@ -38,8 +33,7 @@
                   role="tab"
                   aria-controls="pills-register"
                   aria-selected="false"
-                  >Signup</a
-                >
+                >Signup</a>
               </li>
             </ul>
 
@@ -72,7 +66,7 @@
                   />
                 </div>
                 <div class="form-group">
-                  <button class="btn btn-primary" @click="login">Login</button>
+                  <button class="btn btn-primary" data-dismiss="modal" @click="login">Login</button>
                 </div>
               </div>
               <div
@@ -84,12 +78,7 @@
                 <h5 class="text-center">Create New Account</h5>
 
                 <div class="form-group">
-                  <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Your Name"
-                    v-model="name"
-                  />
+                  <input type="text" class="form-control" placeholder="Your Name" v-model="name" />
                 </div>
 
                 <div class="form-group">
@@ -112,9 +101,7 @@
                 </div>
 
                 <div class="form-group">
-                  <button class="btn btn-primary" @click="register">
-                    Signup
-                  </button>
+                  <button class="btn btn-primary" data-dismiss="modal" @click="register">Signup</button>
                 </div>
               </div>
             </div>
@@ -133,14 +120,14 @@ export default {
     return {
       name: null,
       email: null,
-      password: null,
+      password: null
     };
   },
   methods: {
     async login() {
       try {
         await fb.auth().signInWithEmailAndPassword(this.email, this.password);
-        window.$("#login").modal("hide");
+        // $("#login").modal("hide");
         this.$router.replace("/admin");
       } catch (error) {
         console.log("You can not register", error);
@@ -151,13 +138,13 @@ export default {
         await fb
           .auth()
           .createUserWithEmailAndPassword(this.email, this.password);
-        window.$("#login").modal("hide");
+        // $("#login").modal("hide");
         this.$router.replace("/admin");
       } catch (error) {
         console.log("You can not register", error);
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
