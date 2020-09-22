@@ -14,49 +14,45 @@
             <img src="/images/svg/b.svg" alt class="img-fluid" />
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-8">
-            <h3>Add your Products</h3>
 
-            <form ref="anyName" @submit.prevent="saveData">
-              <div class="form-group">
-                <input type="text" v-model="product.title" class="form-control" placeholder="Title" />
-              </div>
-              <div class="form-group">
-                <input type="text" v-model="product.price" class="form-control" placeholder="Price" />
-              </div>
-              <button type="submit" class="btn btn-primary">Add Product</button>
-            </form>
-            <hr />
-            <div class="row">
-              <div class="col-md-12">
-                <h3>Products listing</h3>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th scope="col">Title</th>
-                      <th scope="col">Price</th>
-                      <th scope="col">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(product, index) in products" :key="index">
-                      <td>{{product.data().title}}</td>
-                      <td>{{product.data().price}}</td>
-                      <td>
-                        <button
-                          @click="editProduct(product)"
-                          data-toggle="modal"
-                          data-target="#editProduct"
-                          class="btn btn-primary m-2"
-                        >Edit</button>
-                        <button @click="deleteProduct(product.id)" class="btn btn-danger m-2">Delete</button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+        <div class="row">
+          <div class="col-md-12">
+            <h3 class="float-left">Products listing</h3>
+            <button @click="addNew" class="btn btn-primary btn-sm float-right">
+              Add Product
+            </button>
+
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Title</th>
+                  <th scope="col">Price</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(product, index) in products" :key="index">
+                  <td>{{ product.data().title }}</td>
+                  <td>{{ product.data().price }}</td>
+                  <td>
+                    <button
+                      @click="editProduct(product)"
+                      data-toggle="modal"
+                      data-target="#editProduct"
+                      class="btn btn-primary m-2"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      @click="deleteProduct(product.id)"
+                      class="btn btn-danger m-2"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -74,24 +70,79 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Edit the Product</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
+
           <div class="modal-body">
             <form ref="anyName" @submit.prevent="saveData">
-              <div class="form-group">
-                <input type="text" v-model="product.title" class="form-control" placeholder="Title" />
+              <!-- main product -->
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      placeholder="Product Name"
+                      v-model="product.name"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <textarea name="" id="" cols="30" rows="10"></textarea>
+                  </div>
+                </div>
+
+                <!-- product sidebar -->
+                <div class="col-md-4">
+                  <h4 class="display-6">Details</h4>
+                  <hr />
+
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      placeholder="Product price"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      placeholder="Product tags"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="product_image">Product Images</label>
+                    <input type="file" class="form-control" />
+                  </div>
+                </div>
+                <!-- footer  -->
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="submit"
+                    @click="addProject"
+                    data-dismiss="modal"
+                    class="btn btn-primary"
+                  >
+                    Save changes
+                  </button>
+                </div>
               </div>
-              <div class="form-group">
-                <input type="text" v-model="product.price" class="form-control" placeholder="Price" />
-              </div>
-              <button
-                type="submit"
-                @click="updateProduct"
-                data-dismiss="modal"
-                class="btn btn-primary"
-              >Update Product</button>
             </form>
           </div>
         </div>
@@ -101,7 +152,7 @@
 </template>
 
 <script>
-import { db } from "../firebase.js";
+import { fb, db } from "../firebase.js";
 
 export default {
   name: "Products",
@@ -112,17 +163,26 @@ export default {
       // saving data
       product: {
         title: null,
-        price: null
+        price: null,
       },
-      activeItem: null
+      activeItem: null,
     };
   },
+  // firestore() {
+  //   return {
+  //     products: fb.collection("products"),
+  //   };
+  // },
   methods: {
+    // add new product
+    addNew() {
+      $("#editProduct").modal("show");
+    },
     // realtime update the data
     watcher() {
-      db.collection("products").onSnapshot(querySnapshot => {
+      db.collection("products").onSnapshot((querySnapshot) => {
         this.products = [];
-        querySnapshot.forEach(doc => {
+        querySnapshot.forEach((doc) => {
           this.products.push(doc);
         });
       });
@@ -162,8 +222,8 @@ export default {
     getProducts() {
       db.collection("products")
         .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(doc => {
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
             // console.log(doc.id, " => ", doc.data());
             this.products.push(doc);
           });
@@ -172,7 +232,7 @@ export default {
     created() {
       this.getProducts();
     },
-    async saveData() {
+    async addProject() {
       try {
         await db.collection("products").add(this.product);
         this.$refs.anyName.reset(); // reseting the fields
@@ -181,8 +241,8 @@ export default {
       } catch (error) {
         console.log("Data could not add", error);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

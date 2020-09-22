@@ -7,8 +7,10 @@ import "popper.js";
 import "bootstrap";
 import "./assets/app.scss";
 import { fb } from "./firebase.js";
+import VueFirestore from "vue-firestore";
 
 Vue.config.productionTip = false;
+Vue.use(VueFirestore);
 
 Vue.component("Navbar", require("./components/Navbar.vue").default);
 Vue.component("Hero", require("./components/Hero.vue").default);
@@ -20,7 +22,7 @@ fb.auth().onAuthStateChanged(() => {
   if (!app) {
     new Vue({
       router,
-      render:(h)=>h(App),
+      render: (h) => h(App),
     }).$mount("#app");
   }
 });
