@@ -32,20 +32,19 @@
               </thead>
               <tbody>
                 <tr v-for="(product, index) in products" :key="index">
-                  <td>{{ product.data().title }}</td>
-                  <td>{{ product.data().price }}</td>
+                  <td>{{ product.name }}</td>
+                  <td>{{ product.price }}</td>
                   <td>
                     <button
-                      @click="editProduct(product)"
                       data-toggle="modal"
-                      data-target="#editProduct"
-                      class="btn btn-primary m-2"
+                      class="btn btn-primary btn-sm"
+                      @click="editProduct(product)"
                     >
                       Edit
                     </button>
                     <button
-                      @click="deleteProduct(product.id)"
-                      class="btn btn-danger m-2"
+                      @click="deleteProduct(product)"
+                      class="btn btn-danger btn-sm"
                     >
                       Delete
                     </button>
@@ -60,7 +59,7 @@
     <!-- Modal -->
     <div
       class="modal fade"
-      id="editProduct"
+      id="product"
       tabindex="-1"
       role="dialog"
       aria-labelledby="exampleModalLabel"
@@ -95,7 +94,13 @@
                   </div>
 
                   <div class="form-group">
-                    <textarea name="" id="" cols="30" rows="10"></textarea>
+                    <textarea
+                      name=""
+                      id=""
+                      cols="30"
+                      rows="10"
+                      v-model="product.descirption"
+                    ></textarea>
                   </div>
                 </div>
 
@@ -109,6 +114,7 @@
                       type="text"
                       placeholder="Product price"
                       class="form-control"
+                      v-model="product.price"
                     />
                   </div>
 
@@ -117,6 +123,7 @@
                       type="text"
                       placeholder="Product tags"
                       class="form-control"
+                      v-model="product.tag"
                     />
                   </div>
                   <div class="form-group">
@@ -152,7 +159,7 @@
 </template>
 
 <script>
-import { fb, db } from "../firebase.js";
+import { db } from "../firebase.js";
 
 export default {
   name: "Products",
@@ -162,85 +169,49 @@ export default {
       products: [],
       // saving data
       product: {
-        title: null,
+        name: null,
+        descirption: null,
         price: null,
+        tag: null,
+        image: null,
       },
       activeItem: null,
     };
   },
-  // firestore() {
-  //   return {
-  //     products: fb.collection("products"),
-  //   };
-  // },
+  firestore() {
+    return {
+      products: db.collection("products"),
+    };
+  },
   methods: {
-    // add new product
     addNew() {
-      $("#editProduct").modal("show");
+      $("#product").modal("show");
     },
-    // realtime update the data
-    watcher() {
-      db.collection("products").onSnapshot((querySnapshot) => {
-        this.products = [];
-        querySnapshot.forEach((doc) => {
-          this.products.push(doc);
-        });
-      });
-    },
-    updateProduct() {
-      db.collection("products")
-        .doc(this.activeItem)
-        .update(this.product)
-        .then(() => {
-          this.watcher();
-          console.log("Document successfully updated!");
-        })
-        .catch(function(error) {
-          // The document probably doesn't exist.
-          console.error("Error updating document: ", error);
-        });
+    addProject() {
+      this.$firestore.products.add(this.product);
     },
     editProduct(product) {
-      this.product = product.data();
-      this.activeItem = product.id; // for update the item getting id of the product
+      console.log(product);
+      this.product = product;
+      $("#product").modal("show");
     },
     deleteProduct(doc) {
-      if (confirm("Are you sure?")) {
-        db.collection("products")
-          .doc("doc")
-          .delete()
-          .then(function() {
-            console.log("Document successfully deleted!");
-          })
-          .catch(function(error) {
-            console.error("Error removing document: ", error);
-          });
-      } else {
-        console.log("Sorry! it is not dletee");
-      }
-    },
-    getProducts() {
-      db.collection("products")
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            // console.log(doc.id, " => ", doc.data());
-            this.products.push(doc);
-          });
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      }).then((result) => {
+        this.$firestore.products.doc(doc[".key"]).delete();
+
+        Toast.fire({
+          icon: "success",
+          title: "Deleted successfully",
         });
-    },
-    created() {
-      this.getProducts();
-    },
-    async addProject() {
-      try {
-        await db.collection("products").add(this.product);
-        this.$refs.anyName.reset(); // reseting the fields
-        this.getProducts();
-        console.log("Data is added");
-      } catch (error) {
-        console.log("Data could not add", error);
-      }
+      });
     },
   },
 };
