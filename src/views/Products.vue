@@ -65,7 +65,7 @@
       aria-labelledby="exampleModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog" role="document">
+      <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5
@@ -107,13 +107,7 @@
                   </div>
 
                   <div class="form-group">
-                    <textarea
-                      name=""
-                      id=""
-                      cols="30"
-                      rows="10"
-                      v-model="product.descirption"
-                    ></textarea>
+                    <vue-editor v-model="product.descirption"></vue-editor>
                   </div>
                 </div>
 
@@ -132,16 +126,43 @@
                   </div>
 
                   <div class="form-group">
+                    <small><i>Please press comma ( , ) to add tags</i></small>
                     <input
                       type="text"
                       placeholder="Product tags"
                       class="form-control"
-                      v-model="product.tag"
+                      v-model="tag"
+                      @keyup.188="addTags"
                     />
+                  </div>
+                  <div class="d-flex">
+                    <p v-for="(tag, index) in product.tags" :key="index">
+                      {{ tag }}
+                    </p>
                   </div>
                   <div class="form-group">
                     <label for="product_image">Product Images</label>
-                    <input type="file" class="form-control" />
+                    <input
+                      type="file"
+                      class="form-control"
+                      @change="uploadImage"
+                    />
+                  </div>
+                  <div class="form-group d-flex">
+                    <div
+                      class="p-1"
+                      v-for="(image, index) in product.images"
+                      :key="index"
+                    >
+                      <div class="img-wrapp">
+                        <img :src="image" alt="Product Images" width="80px" />
+                        <span
+                          class="delete-img"
+                          @click="deleteImage(image, index)"
+                          >X</span
+                        >
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <!-- footer  -->
@@ -182,10 +203,14 @@
 </template>
 
 <script>
-import { db } from "../firebase.js";
+import { fb, db } from "../firebase.js";
+import { VueEditor } from "vue2-editor";
 
 export default {
   name: "Products",
+  components: {
+    VueEditor,
+  },
   data() {
     return {
       // getting data
@@ -195,11 +220,12 @@ export default {
         name: null,
         descirption: null,
         price: null,
-        tag: null,
-        image: null,
+        tags: [],
+        images: [],
       },
       activeItem: null,
       modal: null,
+      tag: null,
     };
   },
   firestore() {
@@ -208,6 +234,68 @@ export default {
     };
   },
   methods: {
+    // deleting image
+    deleteImage(img, index) {
+      let image = fb.storage().refFromURL(img);
+
+      // here it will remove from array images
+      this.product.images.splice(index, 1);
+      // here it will remove from storage with http request to server
+      image
+        .delete()
+        .then(function() {
+          console.log("image deleted");
+        })
+        .catch(function(error) {
+          // Uh-oh, an error occurred!
+          console.log("an error occurred");
+        });
+    },
+    // upload image
+    uploadImage(e) {
+      // check whether it has a image or not
+      if (e.target.files[0]) {
+        let file = e.target.files[0];
+        let storageRef = fb
+          .storage()
+          .ref("products/" + Math.random() + "_" + file.name);
+        let uploadTask = storageRef.put(file);
+
+        // getting URL of the image
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {},
+          (error) => {
+            // Handle unsuccessful uploads
+          },
+          () => {
+            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+              //saving in the image
+              this.product.images.push(downloadURL);
+              Toast.fire({
+                icon: "success",
+                title: "Image upload Successfully",
+              });
+            });
+          }
+        );
+      }
+    },
+    // reset fields for new product
+    reset() {
+      this.product = {
+        name: null,
+        descirption: null,
+        price: null,
+        tags: [],
+        images: [],
+      };
+    },
+    // ad tags
+    addTags() {
+      this.product.tags.push(this.tag);
+      this.tag = "";
+    },
     // adding new product
     addProject() {
       this.$firestore.products.add(this.product);
@@ -219,6 +307,7 @@ export default {
     // openning the new product modal
     addNew() {
       this.modal = "new";
+      this.reset();
       $("#product").modal("show");
     },
     // editing the product
@@ -246,7 +335,7 @@ export default {
         cancelButtonColor: "#d33",
         confirmButtonText: "Yes, delete it!",
       }).then((result) => {
-        this.$firestore.products.doc(doc[".key"]).delete();
+        this.$firestore.products.doc(doc.id).delete();
         // successfull notification
         Toast.fire({
           icon: "success",
@@ -259,4 +348,16 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.img-wrapp {
+  position: relative;
+}
+.img-wrapp span.delete-img {
+  position: absolute;
+  top: -14px;
+  left: -2px;
+}
+.img-wrapp span.delete-img:hover {
+  cursor: pointer;
+}
+</style>
