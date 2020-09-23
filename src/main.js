@@ -12,6 +12,11 @@ import { fb } from "./firebase.js";
 import VueFirestore from "vue-firestore";
 
 Vue.config.productionTip = false;
+
+Vue.use(VueFirestore, {
+  key: "id", // the name of the property. Default is '.key'.
+  enumerable: true, //  whether it is enumerable or not. Default is true.
+});
 Vue.use(VueFirestore);
 
 const Toast = Swal.mixin({

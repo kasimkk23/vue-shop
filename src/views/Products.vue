@@ -68,7 +68,20 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Edit the Product</h5>
+            <h5
+              class="modal-title"
+              id="exampleModalLabel"
+              v-if="modal == 'new'"
+            >
+              Add New Product
+            </h5>
+            <h5
+              class="modal-title"
+              id="exampleModalLabel"
+              v-if="modal == 'edit'"
+            >
+              Edit The Product
+            </h5>
             <button
               type="button"
               class="close"
@@ -142,11 +155,21 @@
                   </button>
                   <button
                     type="submit"
-                    @click="addProject"
                     data-dismiss="modal"
                     class="btn btn-primary"
+                    @click="addProject"
+                    v-if="modal == 'new'"
                   >
-                    Save changes
+                    Add Product
+                  </button>
+                  <button
+                    type="submit"
+                    data-dismiss="modal"
+                    class="btn btn-primary"
+                    @click="updateProduct"
+                    v-if="modal == 'edit'"
+                  >
+                    Update Product
                   </button>
                 </div>
               </div>
@@ -176,6 +199,7 @@ export default {
         image: null,
       },
       activeItem: null,
+      modal: null,
     };
   },
   firestore() {
@@ -184,17 +208,34 @@ export default {
     };
   },
   methods: {
-    addNew() {
-      $("#product").modal("show");
-    },
+    // adding new product
     addProject() {
       this.$firestore.products.add(this.product);
+      Toast.fire({
+        icon: "success",
+        title: "Product Added successfully",
+      });
     },
+    // openning the new product modal
+    addNew() {
+      this.modal = "new";
+      $("#product").modal("show");
+    },
+    // editing the product
     editProduct(product) {
-      console.log(product);
+      this.modal = "edit";
       this.product = product;
       $("#product").modal("show");
     },
+    // update the product
+    updateProduct() {
+      this.$firestore.products.doc(this.product.id).update(this.product);
+      Toast.fire({
+        icon: "success",
+        title: "Product Updated Successfully",
+      });
+    },
+    // delete the product
     deleteProduct(doc) {
       Swal.fire({
         title: "Are you sure?",
@@ -206,7 +247,7 @@ export default {
         confirmButtonText: "Yes, delete it!",
       }).then((result) => {
         this.$firestore.products.doc(doc[".key"]).delete();
-
+        // successfull notification
         Toast.fire({
           icon: "success",
           title: "Deleted successfully",
