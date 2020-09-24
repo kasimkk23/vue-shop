@@ -11,7 +11,7 @@
             </p>
           </div>
           <div class="col-md-6">
-            <img src="/images/svg/b.svg" alt class="img-fluid" />
+            <img src="/images/svg/b.svg" width="300" alt class="img-fluid" />
           </div>
         </div>
 

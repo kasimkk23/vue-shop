@@ -5,6 +5,7 @@ import Admin from "../views/Admin.vue";
 import Overview from "../views/Overview.vue";
 import Products from "../views/Products.vue";
 import Orders from "../views/Orders.vue";
+import Profile from "../views/Profile.vue";
 import { fb } from "../firebase.js";
 
 Vue.use(VueRouter);
@@ -13,30 +14,35 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    component: Home
+    component: Home,
   },
   {
     path: "/admin",
     name: "Admin",
     component: Admin,
     meta: { requiresAuth: true },
-    children:[
+    children: [
       {
         path: "overview",
         name: "Overview",
-        component: Overview
+        component: Overview,
       },
       {
         path: "products",
         name: "Products",
-        component: Products
+        component: Products,
+      },
+      {
+        path: "profile",
+        name: "profile",
+        component: Profile,
       },
       {
         path: "orders",
         name: "Orders",
-        component: Orders
-      }
-    ]
+        component: Orders,
+      },
+    ],
   },
   {
     path: "/about",
@@ -45,28 +51,27 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue")
-  }
+      import(/* webpackChunkName: "about" */ "../views/About.vue"),
+  },
 ];
 
 const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
-  routes
+  routes,
 });
 
 router.beforeEach((to, from, next) => {
-
-  const requiresAuth = to.matched.some(x => x.meta.requiresAuth)
-  const currentUser = fb.auth().currentUser
+  const requiresAuth = to.matched.some((x) => x.meta.requiresAuth);
+  const currentUser = fb.auth().currentUser;
 
   if (requiresAuth && !currentUser) {
-      next('/')
+    next("/");
   } else if (requiresAuth && currentUser) {
-      next()
+    next();
   } else {
-      next()
+    next();
   }
-})
+});
 
 export default router;
