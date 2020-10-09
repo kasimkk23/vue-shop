@@ -10,6 +10,7 @@ import "bootstrap";
 import "./assets/app.scss";
 import { fb } from "./firebase.js";
 import VueFirestore from "vue-firestore";
+import store from "./store.js";
 
 Vue.config.productionTip = false;
 
@@ -18,6 +19,12 @@ Vue.use(VueFirestore, {
   enumerable: true, //  whether it is enumerable or not. Default is true.
 });
 Vue.use(VueFirestore);
+
+import VueCarousel from "vue-carousel";
+Vue.use(VueCarousel);
+
+import Vue2Filters from "vue2-filters";
+Vue.use(Vue2Filters);
 
 const Toast = Swal.mixin({
   toast: true,
@@ -36,6 +43,8 @@ window.Toast = Toast;
 Vue.component("Navbar", require("./components/Navbar.vue").default);
 Vue.component("Hero", require("./components/Hero.vue").default);
 Vue.component("Products", require("./sections/Products.vue").default);
+Vue.component("AddToCart", require("./components/AddToCart.vue").default);
+Vue.component("MiniCart", require("./components/MiniCart.vue").default);
 
 let app = "";
 
@@ -43,6 +52,7 @@ fb.auth().onAuthStateChanged(() => {
   if (!app) {
     new Vue({
       router,
+      store,
       render: (h) => h(App),
     }).$mount("#app");
   }

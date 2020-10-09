@@ -4,6 +4,8 @@
     <Hero />
     <Products />
     <Login />
+
+    <MiniCart />
   </div>
 </template>
 
