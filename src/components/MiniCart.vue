@@ -35,7 +35,14 @@
                   class="align-self-center"
                 />
                 <div class="media-body">
-                  <h5 class="mt-0">{{ item.productName }}</h5>
+                  <h5 class="mt-0">
+                    {{ item.productName }}
+                    <span
+                      class="float-right cross"
+                      @click="$store.commit('removeFromCart', item)"
+                      >X</span
+                    >
+                  </h5>
                   <p class="mt-0">{{ item.productPrice | currency }}</p>
                   <p class="mt-0">Quantity: {{ item.productQuantity }}</p>
                 </div>
@@ -50,7 +57,9 @@
             >
               Continue Shopping
             </button>
-            <button type="button" class="btn btn-primary">Checkout</button>
+            <button type="button" class="btn btn-primary" @click="checkout">
+              Checkout
+            </button>
           </div>
         </div>
       </div>
@@ -66,10 +75,19 @@ export default {
   },
   data() {
     return {};
+  },
+  methods: {
+    checkout() {
+      $("#miniCart").modal("hide");
+      this.$router.push("/checkout");
+    }
   }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+.cross {
+  cursor: pointer;
+}
 </style>
