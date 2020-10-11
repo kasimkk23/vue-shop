@@ -20,7 +20,7 @@
               <h5 class="card-price">{{ product.price | currency }}</h5>
               <AddToCart
                 :image="getImage(product.images)"
-                :product-id="product.id"
+                :p-id="product.id"
                 :name="product.name"
                 :price="product.price"
               />

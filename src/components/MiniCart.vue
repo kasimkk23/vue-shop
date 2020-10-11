@@ -37,6 +37,7 @@
                 <div class="media-body">
                   <h5 class="mt-0">{{ item.productName }}</h5>
                   <p class="mt-0">{{ item.productPrice | currency }}</p>
+                  <p class="mt-0">Quantity: {{ item.productQuantity }}</p>
                 </div>
               </li>
             </ul>
