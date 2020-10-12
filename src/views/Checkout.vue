@@ -32,7 +32,9 @@
           </ul>
         </div>
         <div class="col-md-4">
-          <h5 class="py-4">Total Price</h5>
+          <h5 class="py-4">Total Price:</h5>
+
+          <button class="btn btn-primary mt-4">Pay with credit card</button>
         </div>
       </div>
     </div>
